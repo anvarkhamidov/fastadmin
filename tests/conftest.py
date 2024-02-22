@@ -290,9 +290,9 @@ async def tortoiseorm_event(tortoiseorm_base_event, tortoiseorm_tournament, tort
     await obj.delete()
 
 
-@pytest.fixture(params=ORMS)
-async def superuser(request, tortoiseorm_superuser, django_superuser, sqlalchemy_superuser, ponyorm_superuser):
-    match request.param:
+@pytest.fixture()
+async def superuser(orm, tortoiseorm_superuser, django_superuser, sqlalchemy_superuser, ponyorm_superuser):
+    match orm:
         case "tortoiseorm":
             yield tortoiseorm_superuser
         case "djangoorm":
@@ -303,9 +303,9 @@ async def superuser(request, tortoiseorm_superuser, django_superuser, sqlalchemy
             yield ponyorm_superuser
 
 
-@pytest.fixture(params=ORMS)
-async def user(request, tortoiseorm_user, django_user, sqlalchemy_user, ponyorm_user):
-    match request.param:
+@pytest.fixture()
+async def user(orm, tortoiseorm_user, django_user, sqlalchemy_user, ponyorm_user):
+    match orm:
         case "tortoiseorm":
             yield tortoiseorm_user
         case "djangoorm":
@@ -316,9 +316,9 @@ async def user(request, tortoiseorm_user, django_user, sqlalchemy_user, ponyorm_
             yield ponyorm_user
 
 
-@pytest.fixture(params=ORMS)
-async def tournament(request, tortoiseorm_tournament, django_tournament, sqlalchemy_tournament, ponyorm_tournament):
-    match request.param:
+@pytest.fixture()
+async def tournament(orm, tortoiseorm_tournament, django_tournament, sqlalchemy_tournament, ponyorm_tournament):
+    match orm:
         case "tortoiseorm":
             yield tortoiseorm_tournament
         case "djangoorm":
@@ -329,9 +329,9 @@ async def tournament(request, tortoiseorm_tournament, django_tournament, sqlalch
             yield ponyorm_tournament
 
 
-@pytest.fixture(params=ORMS)
-async def base_event(request, tortoiseorm_base_event, django_base_event, sqlalchemy_base_event, ponyorm_base_event):
-    match request.param:
+@pytest.fixture()
+async def base_event(orm, tortoiseorm_base_event, django_base_event, sqlalchemy_base_event, ponyorm_base_event):
+    match orm:
         case "tortoiseorm":
             yield tortoiseorm_base_event
         case "djangoorm":
@@ -342,9 +342,9 @@ async def base_event(request, tortoiseorm_base_event, django_base_event, sqlalch
             yield ponyorm_base_event
 
 
-@pytest.fixture(params=ORMS)
-async def event(request, tortoiseorm_event, django_event, sqlalchemy_event, ponyorm_event):
-    match request.param:
+@pytest.fixture()
+async def event(orm, tortoiseorm_event, django_event, sqlalchemy_event, ponyorm_event):
+    match orm:
         case "tortoiseorm":
             yield tortoiseorm_event
         case "djangoorm":
@@ -397,8 +397,18 @@ async def flask_client(flask_app):
 
 
 @pytest.fixture(params=FRAMEWORKS)
-async def app(request, fastapi_app, flask_app, django_app):
-    match request.param:
+def framework(request):
+    return request.param
+
+
+@pytest.fixture(params=ORMS)
+def orm(request):
+    return request.param
+
+
+@pytest.fixture()
+async def app(framework, fastapi_app, flask_app, django_app):
+    match framework:
         case "fastapi":
             yield fastapi_app
         case "flask":
@@ -407,9 +417,9 @@ async def app(request, fastapi_app, flask_app, django_app):
             yield django_app
 
 
-@pytest.fixture(params=FRAMEWORKS)
-async def client(request, fastapi_client, flask_client, django_client):
-    match request.param:
+@pytest.fixture()
+async def client(framework, fastapi_client, flask_client, django_client):
+    match framework:
         case "fastapi":
             yield fastapi_client
         case "flask":
