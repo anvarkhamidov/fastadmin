@@ -3,8 +3,10 @@ import typing
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response, StreamingResponse
 
+from fastadmin.api.encoders import CUSTOM_ENCODERS
 from fastadmin.api.exceptions import AdminApiException
 from fastadmin.api.schemas import ActionInputSchema, ExportInputSchema, SignInInputSchema
 from fastadmin.api.service import ApiService, get_user_id_from_session_id
@@ -76,11 +78,12 @@ async def me(
         )
         if not user_id:
             raise AdminApiException(401, "User is not authenticated.")
-        return await api_service.get(
+        user = await api_service.get(
             request.cookies.get(settings.ADMIN_SESSION_ID_KEY, None), settings.ADMIN_USER_MODEL, user_id
         )
     except AdminApiException as e:
         raise HTTPException(e.status_code, detail=e.detail) from None
+    return jsonable_encoder(user, custom_encoder=CUSTOM_ENCODERS)
 
 
 @router.get("/dashboard-widget/{model}")
@@ -141,12 +144,15 @@ async def list_objs(
             offset=offset,
             limit=limit,
         )
-        return {
-            "total": total,
-            "results": objs,
-        }
     except AdminApiException as e:
         raise HTTPException(e.status_code, detail=e.detail) from None
+    return jsonable_encoder(
+        {
+            "total": total,
+            "results": objs,
+        },
+        custom_encoder=CUSTOM_ENCODERS,
+    )
 
 
 @router.get("/retrieve/{model}/{id}", response_model=None)
@@ -162,16 +168,17 @@ async def get(
     :return: An object.
     """
     try:
-        return await api_service.get(
+        instance = await api_service.get(
             request.cookies.get(settings.ADMIN_SESSION_ID_KEY, None),
             model,
             id,
         )
     except AdminApiException as e:
         raise HTTPException(e.status_code, detail=e.detail) from None
+    return jsonable_encoder(instance, custom_encoder=CUSTOM_ENCODERS)
 
 
-@router.post("/add/{model}", response_model=None)
+@router.post("/add/{model}")
 async def add(
     request: Request,
     model: str,
@@ -191,7 +198,7 @@ async def add(
         )
     except AdminApiException as e:
         raise HTTPException(e.status_code, detail=e.detail) from None
-    return instance
+    return jsonable_encoder(instance, custom_encoder=CUSTOM_ENCODERS)
 
 
 @router.patch("/change-password/{id}")
@@ -213,7 +220,7 @@ async def change_password(
         raise HTTPException(e.status_code, detail=e.detail) from None
 
 
-@router.patch("/change/{model}/{id}", response_model=None)
+@router.patch("/change/{model}/{id}")
 async def change(
     request: Request,
     model: str,
@@ -228,9 +235,12 @@ async def change(
     :return: An object.
     """
     try:
-        return await api_service.change(request.cookies.get(settings.ADMIN_SESSION_ID_KEY, None), model, id, payload)
+        instance = await api_service.change(
+            request.cookies.get(settings.ADMIN_SESSION_ID_KEY, None), model, id, payload
+        )
     except AdminApiException as e:
         raise HTTPException(e.status_code, detail=e.detail) from None
+    return jsonable_encoder(instance, custom_encoder=CUSTOM_ENCODERS)
 
 
 @router.post("/export/{model}")
