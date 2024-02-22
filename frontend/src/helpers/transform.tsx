@@ -49,6 +49,9 @@ export const isSlug = (v: any): boolean => {
 };
 
 export const transformValueToServer = (value: any): any => {
+  if (value === undefined) {
+    return null;
+  }
   if (isArray(value)) {
     return value.map(transformValueToServer);
   }
