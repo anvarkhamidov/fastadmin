@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+import typing
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request
@@ -64,7 +64,7 @@ async def sign_out(
 @router.get("/me")
 async def me(
     request: Request,
-) -> Any:
+) -> dict[str, typing.Any]:
     """This method is used to get current user.
 
     :params user_id: a user id.
@@ -149,12 +149,12 @@ async def list_objs(
         raise HTTPException(e.status_code, detail=e.detail) from None
 
 
-@router.get("/retrieve/{model}/{id}")
+@router.get("/retrieve/{model}/{id}", response_model=None)
 async def get(
     request: Request,
     model: str,
     id: UUID | int,
-) -> Any:
+) -> dict[str, typing.Any]:
     """This method is used to get an object.
 
     :params model: a name of model.
@@ -171,12 +171,12 @@ async def get(
         raise HTTPException(e.status_code, detail=e.detail) from None
 
 
-@router.post("/add/{model}")
+@router.post("/add/{model}", response_model=None)
 async def add(
     request: Request,
     model: str,
     payload: dict,
-) -> Any:
+) -> dict[str, typing.Any]:
     """This method is used to add an object.
 
     :params model: a name of model.
@@ -184,13 +184,14 @@ async def add(
     :return: An object.
     """
     try:
-        return await api_service.add(
+        instance = await api_service.add(
             request.cookies.get(settings.ADMIN_SESSION_ID_KEY, None),
             model,
             payload,
         )
     except AdminApiException as e:
         raise HTTPException(e.status_code, detail=e.detail) from None
+    return instance
 
 
 @router.patch("/change-password/{id}")
@@ -212,13 +213,13 @@ async def change_password(
         raise HTTPException(e.status_code, detail=e.detail) from None
 
 
-@router.patch("/change/{model}/{id}")
+@router.patch("/change/{model}/{id}", response_model=None)
 async def change(
     request: Request,
     model: str,
     id: UUID | int,
     payload: dict,
-) -> Any:
+) -> dict[str, typing.Any]:
     """This method is used to change an object.
 
     :params model: a name of model.
