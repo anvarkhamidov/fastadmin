@@ -2,30 +2,54 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 import jwt
+import pytest
 
-from fastadmin.api.helpers import is_valid_id, is_valid_uuid, sanitize_filter_value
+from fastadmin.api.helpers import is_valid_id, is_valid_int, is_valid_uuid, sanitize_filter_value
 from fastadmin.api.service import get_user_id_from_session_id
 from fastadmin.settings import settings
 
 
-async def test_sanitize_filter_value():
-    assert sanitize_filter_value("true") is True
-    assert sanitize_filter_value("false") is False
-    assert sanitize_filter_value("null") is None
-    assert sanitize_filter_value("foo") == "foo"
+@pytest.mark.parametrize(
+    ("value", "expected_result"), [("true", True), ("false", False), ("null", None), ("foo", "foo")]
+)
+async def test_sanitize_filter_value(value, expected_result):
+    assert sanitize_filter_value(value) is expected_result
 
 
-async def test_is_valid_uuid():
-    assert is_valid_uuid(str(uuid.uuid1())) is True
-    assert is_valid_uuid(str(uuid.uuid3(uuid.uuid4(), "test"))) is True
-    assert is_valid_uuid(str(uuid.uuid4())) is True
-    assert is_valid_uuid(str(uuid.uuid5(uuid.uuid4(), "test"))) is True
-    assert is_valid_uuid("invalid") is False
+@pytest.mark.parametrize(
+    ("uuid_value", "expected_result"),
+    [
+        (uuid.uuid1(), True),
+        (uuid.uuid3(uuid.uuid4(), "test"), True),
+        (uuid.uuid4(), True),
+        (uuid.uuid5(uuid.uuid4(), "test"), True),
+        ("invalid", False),
+    ],
+)
+async def test_is_valid_uuid(uuid_value, expected_result):
+    assert is_valid_uuid(str(uuid_value)) is expected_result
 
 
-async def test_is_valid_id():
-    assert is_valid_id(1) is True
-    assert is_valid_uuid(str(uuid.uuid1())) is True
+@pytest.mark.parametrize(
+    ("value", "expected_result"),
+    [
+        ("1", True),
+        ("-1", True),
+        (str(uuid.uuid1()), False),
+        (str(uuid.uuid4()), False),
+        ("invalid", False),
+    ],
+)
+def test_is_valid_int(value, expected_result):
+    assert is_valid_int(value) is expected_result
+
+
+@pytest.mark.parametrize(
+    ("value", "expected_result"),
+    [("1", True), ("-1", True), (1, True), (-1, True), (uuid.uuid1(), True), (uuid.uuid4(), True), ("invalid", False)],
+)
+async def test_is_valid_id(value, expected_result):
+    assert is_valid_id(value) is expected_result
 
 
 async def test_get_user_id_from_session_id(session_id):
@@ -35,7 +59,6 @@ async def test_get_user_id_from_session_id(session_id):
     assert user_id is not None
 
     now = datetime.now(timezone.utc)
-    session_expired_at = now + timedelta(seconds=settings.ADMIN_SESSION_EXPIRED_AT)
     without_expired_session_id = jwt.encode(
         {
             "user_id": str(user_id),

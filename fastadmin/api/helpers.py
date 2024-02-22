@@ -51,13 +51,24 @@ def is_valid_uuid(uuid_to_test: str) -> bool:
     return str(uuid_obj) == uuid_to_test
 
 
-def is_valid_id(id: UUID | int) -> bool:
+def is_valid_int(int_to_test: str) -> bool:
+    """Check if is_valid_int is a valid integer.
+
+    :param int_to_test: An integer to test.
+    :return: True if int_to_test is a valid integer, False otherwise.
+    """
+    if int_to_test[0] in ("-", "+"):
+        return int_to_test[1:].isdigit()
+    return int_to_test.isdigit()
+
+
+def is_valid_id(id: UUID | int | str) -> bool:
     """Check if id is a valid id.
 
     :param id: An id to test.
     :return: True if id is a valid id, False otherwise.
     """
-    return str(id).isdigit() or is_valid_uuid(str(id))
+    return is_valid_int(str(id)) or is_valid_uuid(str(id))
 
 
 def is_valid_base64(value: str) -> bool:
