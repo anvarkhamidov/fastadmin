@@ -101,7 +101,6 @@ class ApiService:
     ) -> str:
         model = settings.ADMIN_USER_MODEL
         admin_model = get_admin_model(model)
-        
         if not admin_model:
             raise AdminApiException(401, detail=f"{model} model is not registered.")
 
