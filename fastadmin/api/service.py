@@ -95,12 +95,13 @@ async def get_user_id_from_session_id(session_id: str | None) -> UUID | int | No
 
 class ApiService:
     async def sign_in(
-        self,
-        session_id: str | None,
-        payload: SignInInputSchema,
+            self,
+            session_id: str | None,
+            payload: SignInInputSchema,
     ) -> str:
         model = settings.ADMIN_USER_MODEL
         admin_model = get_admin_model(model)
+        
         if not admin_model:
             raise AdminApiException(401, detail=f"{model} model is not registered.")
 
@@ -128,8 +129,8 @@ class ApiService:
         )
 
     async def sign_out(
-        self,
-        session_id: str | None,
+            self,
+            session_id: str | None,
     ) -> bool:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -138,12 +139,12 @@ class ApiService:
         return True
 
     async def dashboard_widget(
-        self,
-        session_id: str | None,
-        model: str,
-        min_x_field: str | None = None,
-        max_x_field: str | None = None,
-        period_x_field: str | None = None,
+            self,
+            session_id: str | None,
+            model: str,
+            min_x_field: str | None = None,
+            max_x_field: str | None = None,
+            period_x_field: str | None = None,
     ) -> dict[str, str | int | float]:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -173,14 +174,14 @@ class ApiService:
         return data
 
     async def list(
-        self,
-        session_id: str | None,
-        model: str,
-        search: str | None = None,
-        sort_by: str | None = None,
-        filters: dict = None,
-        offset: int | None = 0,
-        limit: int | None = 10,
+            self,
+            session_id: str | None,
+            model: str,
+            search: str | None = None,
+            sort_by: str | None = None,
+            filters: dict = None,
+            offset: int | None = 0,
+            limit: int | None = 10,
     ) -> tuple[list[dict], int]:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -243,10 +244,10 @@ class ApiService:
         )
 
     async def get(
-        self,
-        session_id: str | None,
-        model: str,
-        id: UUID | int,
+            self,
+            session_id: str | None,
+            model: str,
+            id: UUID | int,
     ) -> dict:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -262,10 +263,10 @@ class ApiService:
         return obj
 
     async def add(
-        self,
-        session_id: str | None,
-        model: str,
-        payload: dict,
+            self,
+            session_id: str | None,
+            model: str,
+            payload: dict,
     ) -> dict:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -277,10 +278,10 @@ class ApiService:
         return await admin_model.save_model(None, payload)  # type: ignore [return-value]
 
     async def change_password(
-        self,
-        session_id: str | None,
-        id: UUID | int,
-        payload: dict,
+            self,
+            session_id: str | None,
+            id: UUID | int,
+            payload: dict,
     ) -> None:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -306,11 +307,11 @@ class ApiService:
         await change_password_fn(id, payload.password)
 
     async def change(
-        self,
-        session_id: str | None,
-        model: str,
-        id: UUID | int,
-        payload: dict,
+            self,
+            session_id: str | None,
+            model: str,
+            id: UUID | int,
+            payload: dict,
     ) -> dict:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -326,13 +327,13 @@ class ApiService:
         return obj
 
     async def export(
-        self,
-        session_id: str | None,
-        model: str,
-        payload: ExportInputSchema,
-        search: str | None = None,
-        sort_by: str | None = None,
-        filters: dict = None,
+            self,
+            session_id: str | None,
+            model: str,
+            payload: ExportInputSchema,
+            search: str | None = None,
+            sort_by: str | None = None,
+            filters: dict = None,
     ) -> tuple[str, str, StringIO | BytesIO | None]:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -403,10 +404,10 @@ class ApiService:
         )
 
     async def delete(
-        self,
-        session_id: str | None,
-        model: str,
-        id: UUID | int,
+            self,
+            session_id: str | None,
+            model: str,
+            id: UUID | int,
     ) -> UUID | int:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
@@ -445,8 +446,8 @@ class ApiService:
         await action_function_fn(payload.ids)
 
     async def get_configuration(
-        self,
-        session_id: str | None,
+            self,
+            session_id: str | None,
     ) -> ConfigurationSchema:
         current_user_id = await get_user_id_from_session_id(session_id)
         if not current_user_id:
