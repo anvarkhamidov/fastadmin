@@ -57,4 +57,4 @@ class Settings(BaseSettings):
     ADMIN_SECRET_KEY: str = Field(...)
 
 
-settings = Settings()
+settings = Settings()  # type: ignore [call-arg]

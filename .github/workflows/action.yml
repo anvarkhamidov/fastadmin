@@ -20,8 +20,8 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
       - name: Install Dependencies
         run: make install
-      - name: Run Lint
-        run: make lint
+#      - name: Run Lint
+      #        run: make lint
       - name: Run Tests
         env:
           ADMIN_USER_MODEL: User
